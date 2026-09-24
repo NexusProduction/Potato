@@ -24,7 +24,7 @@ input,select{width:100%;padding:12px;margin:5px 0;background:#ffffff0d;border:1p
 .big{text-align:center;margin-top:-8px}.big .num{font-size:42px;line-height:1}
 .chip{display:inline-block;margin-top:8px;padding:4px 14px;border-radius:99px;font-weight:600;font-size:13px;background:rgba(var(--glow),.18);color:rgb(var(--glow))}
 .two{display:grid;grid-template-columns:1fr 1fr}.two>div{text-align:center}.two .num{font-size:28px}.two small{color:var(--mute)}
-.plot{position:relative;margin-top:6px}#svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.lockfab{width:100%;margin:10px 0 2px;display:flex;align-items:center;justify-content:center;gap:7px}.plot{position:relative;margin-top:6px}#svg{width:100%;height:auto;display:block;touch-action:pan-y}
 .tip{position:absolute;transform:translate(-50%,-100%);background:#ffffff2e;backdrop-filter:blur(8px);padding:4px 10px;border-radius:9px;font:800 13px var(--disp);pointer-events:none;white-space:nowrap}
 .app{display:flex;align-items:center;gap:12px;margin:14px 0}.app>div{flex:1}.app span{display:flex;justify-content:space-between}
 .tile{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none;box-shadow:inset 0 1px 0 #fff4}.tile .ic{width:22px;height:22px}
@@ -42,7 +42,7 @@ nav .on{background:linear-gradient(180deg,#ffd75e,#ffb31f);color:#2a1c00}
 .lb.me{outline:2px solid #fff}
 #alogo .sp{width:96px;height:96px}
 .sheet{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9;padding:16px;animation:fadeIn .18s ease}.lockbox{position:relative;background:linear-gradient(160deg,#102a60,#091a3c);border:1px solid var(--line);width:100%;max-width:520px;border-radius:26px;padding:20px;max-height:88vh;overflow:auto;box-shadow:0 24px 70px #000b;animation:pop .24s cubic-bezier(.2,.8,.2,1)}.close{position:absolute;right:12px;top:10px;width:38px;height:38px;border-radius:50%;padding:0;font-size:25px;background:#ffffff10}.picker{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:10px 0}.pick{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:9px;text-align:left;padding:10px;border:1px solid transparent;background:#ffffff09}.pick .tile{grid-row:1/3;width:42px;height:42px;margin:auto}.pick b{font-size:14px}.pick small{color:var(--mute);font-size:11px}.pick.on{border-color:#ffc83d88;background:#ffc83d12;transform:translateY(-1px);box-shadow:0 8px 20px #0003}.mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.mode button{font-size:12px;padding:9px;color:var(--mute)}.mode button.on{background:#ffc83d;color:#2a1c00;font-weight:700}.lockgo{display:flex;align-items:center;justify-content:center;gap:7px}.locktoast{margin-top:10px;text-align:center;color:#ffc83d;font-weight:700;animation:pop .28s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}.lockbox .tile.yt{background:linear-gradient(145deg,#ff2a3d,#c90f2a)}.lockbox .tile.ys{background:linear-gradient(145deg,#ff7a2f,#ff3f4e)}.lockbox .tile.xx{background:#151a2b}.lockbox .tile.fb{background:#2f6bff}
-.sheet>div{background:#0d2350;border-top:1px solid var(--line);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:18px;max-height:88vh;overflow:auto}
+.sheet>div:not(.lockbox){background:#0d2350;border-top:1px solid var(--line);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:18px;max-height:88vh;overflow:auto}
 .row{display:flex;align-items:center;gap:10px;margin:8px 0}
 </style></head><body>
 <section id="auth" class="wrap"><div class="glass" style="margin-top:7vh;text-align:center"><div id="alogo"></div><h1 style="font-size:38px">Potato</h1><p style="color:var(--mute);margin:6px 0 16px">See how rotten your scrolling made you.</p>
@@ -53,7 +53,7 @@ nav .on{background:linear-gradient(180deg,#ffd75e,#ffb31f);color:#2a1c00}
 <main id="app" hidden>
 <div id="p0" class="wrap">
 <div id="noext" class="glass" hidden style="margin-top:12px;font-size:13px">Time tracking needs the Potato extension (see README). Showing saved data.</div>
-<div class="seg"><i></i><button data-r="day" class="on">Today</button><button data-r="month">Month</button><button data-r="year">Year</button></div>
+<div class="seg"><i></i><button data-r="day" class="on">Today</button><button data-r="month">Month</button><button data-r="year">Year</button></div><button class="pri lockfab" onclick="openLock()"><span data-i="lock"></span> Lock apps</button>
 <div class="stage"><canvas id="cv"></canvas></div>
 <div class="big"><div class="num" id="pct"></div><span class="chip" id="chip"></span></div>
 <div class="glass" style="margin-top:16px"><div class="two"><div><div class="num" id="s1"></div><small id="l1"></small></div><div><div class="num" id="s2"></div><small id="l2"></small></div></div>
