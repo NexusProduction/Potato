@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0b10"><title>Potato</title><link rel="manifest" href="manifest.json">
+<style>
+*{box-sizing:border-box;margin:0}body{background:#0b0b10;color:#f3f0e8;font:15px system-ui,sans-serif;min-height:100vh;padding-bottom:80px}
+[hidden]{display:none!important}
+.wrap{max-width:520px;margin:auto;padding:12px}
+.card{background:#16161d;border:1px solid #23232e;border-radius:18px;padding:14px;margin:12px 0}
+button{font:inherit;color:inherit;border:0;border-radius:12px;padding:10px 14px;background:#262633;cursor:pointer}
+.pri{background:#e8b04a;color:#1a1204;font-weight:700}
+input,select{width:100%;padding:11px;margin:5px 0;background:#0f0f15;border:1px solid #2b2b3a;border-radius:10px;color:inherit;font:inherit}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#101016;border-top:1px solid #23232e}
+nav button{flex:1;border-radius:0;background:none;padding:18px}nav .on{color:#e8b04a;font-weight:700}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.bar{height:6px;border-radius:6px;background:#23232e;margin:5px 0 12px;overflow:hidden}.bar i{display:block;height:100%;border-radius:6px;transition:width .6s}
+.seg{display:flex;gap:6px;justify-content:center;margin:10px 0}.seg .on{background:#e8b04a;color:#1a1204;font-weight:700}
+#pct{font-size:30px;font-weight:800;text-align:center}
+canvas{display:block;margin:auto;max-width:100%;touch-action:none}
+.av{width:44px;height:44px;border-radius:50%;background:#333;object-fit:cover;flex:none}
+.sheet{position:fixed;inset:0;background:#000b;display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet>div{background:#16161d;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px;max-height:88vh;overflow:auto}
+.me{border-color:#e8b04a}
+</style></head><body>
+<section id="auth" class="wrap"><div class="card" style="margin-top:8vh;text-align:center"><div style="font-size:56px">🥔</div><h1>Potato</h1><p style="opacity:.6;margin:6px 0 14px">See how rotten your scrolling made you.</p>
+<input id="nm" placeholder="Name (for sign up)"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (6+ characters)">
+<p id="err" style="color:#ff6b6b;font-size:13px;min-height:18px"></p>
+<div class="row"><button id="login" class="pri" style="flex:1">Log in</button><button id="signup" style="flex:1">Sign up</button></div><button id="google" style="width:100%">Continue with Google</button></div></section>
+
+<main id="app" hidden>
+<div id="p0" class="wrap">
+<div class="row"><b style="flex:1;font-size:20px">🥔 Potato</b><button id="inst" hidden>Install</button><button onclick="openLock()">🔒 Lock apps</button></div>
+<div id="noext" class="card" hidden>⚠️ Time tracking needs the Potato extension (see README). Showing saved data.</div>
+<div class="seg"><button data-r="day" class="on">Today</button><button data-r="month">Month</button><button data-r="year">Year</button></div>
+<canvas id="cv" width="300" height="300"></canvas>
+<div id="pct"></div><p id="fresh" style="text-align:center;opacity:.6"></p>
+<div class="card" id="apps"></div>
+<div class="card" id="tot" style="text-align:center;font-size:20px;font-weight:700"></div>
+</div>
+<div id="p1" class="wrap" hidden>
+<div class="card row"><img id="pp" class="av" alt=""><div style="flex:1"><b id="pn"></b><div id="bd" style="opacity:.7;font-size:13px"></div></div><button id="up" class="pri" onclick="pay()">Upgrade</button></div>
+<div class="seg"><button data-d="desc" class="on">Most rotten</button><button data-d="asc">Least rotten</button></div>
+<div id="list"></div>
+</div>
+<nav><button id="n0" class="on" onclick="go(0)">📊 Dashboard</button><button id="n1" onclick="go(1)">🏆 Leaderboard</button></nav>
+</main>
+
+<div id="sheet" class="sheet" hidden onclick="if(event.target==this)this.hidden=true"><div><h3>🔒 Lock an app</h3><div id="ll"></div>
+<select id="la"><option value="yt">YouTube (everything)</option><option value="ys">YouTube Shorts only</option><option value="x">X</option><option value="fb">Facebook</option></select>
+<select id="lm" onchange="tm()"><option value="t">For a number of hours</option><option value="s">Every day between two times</option></select>
+<input id="lh" type="number" value="2" min="0.5" step="0.5">
+<div id="ls" class="row" hidden><input id="lf" type="time" value="18:00"><input id="lt" type="time" value="06:00"></div>
+<button class="pri" style="width:100%;margin-top:8px" onclick="addLock()">Lock it</button></div></div>
+
+<div id="paysheet" class="sheet" hidden onclick="if(event.target==this)this.hidden=true"><div><h3>⭐ Upgrade to unlimited locks</h3>
+<p style="margin:8px 0">Free accounts get 1 lock. Send payment to <b>YOUR-UPI-OR-BANK-DETAILS</b>, then paste the transaction ID. It is checked by hand and your account is upgraded after.</p>
+<input id="ref" placeholder="Transaction ID"><button class="pri" style="width:100%" onclick="sendPay()">Send for review</button><p id="paymsg" style="margin-top:8px"></p></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// 1) PASTE YOUR FIREBASE CONFIG (Firebase console > Project settings > Your apps > Web)
+firebase.initializeApp({apiKey:"PASTE",authDomain:"PASTE",projectId:"PASTE",appId:"PASTE"});
+const auth=firebase.auth(),db=firebase.firestore(),$=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
+const APPS=[['yt','YouTube','#ff2a2a','▶'],['ys','YouTube Shorts','#ff7a45','⚡'],['x','X','#e7e7e7','𝕏'],['fb','Facebook','#3b8bff','f']];
+const NAME={yt:'YouTube',ys:'YouTube Shorts',x:'X',fb:'Facebook'};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const fmt=s=>{const m=Math.round(s/60);return m>=60?Math.floor(m/60)+'h '+m%60+'m':m+'m'};
+let days=JSON.parse(localStorage.days||'{}'),locks=JSON.parse(localStorage.locks||'[]'),range='day',dir='desc',me={},user,ext=false;
+
+// ---- rot maths: Shorts count double. 100% rot = 5 weighted hours per day
+function calc(r){const n=new Date(),k=n.toLocaleDateString('en-CA'),p=r=='day'?k:r=='month'?k.slice(0,7):k.slice(0,4);
+ const s={yt:0,ys:0,x:0,fb:0};for(const d in days)if(d.startsWith(p))for(const a in s)s[a]+=days[d][a]||0;
+ const N=r=='day'?1:r=='month'?n.getDate():Math.ceil((n-new Date(n.getFullYear(),0,0))/864e5);
+ const tot=s.yt+s.ys+s.x+s.fb,w=(s.yt+s.ys*2+s.x+s.fb)/60;
+ return{s,tot,rot:Math.min(100,Math.round(w/N/300*100))}}
+function render(){const{s,tot,rot}=calc(range),max=Math.max(1,...Object.values(s));tgt=rot;
+ $('#pct').textContent=rot+'% rotten';$('#fresh').textContent=(100-rot)+'% fresh';
+ $('#apps').innerHTML=APPS.map(([k,n,c,i])=>`<div class="row" style="margin-bottom:0"><b style="color:${c};width:20px">${i}</b><span style="flex:1">${n}</span><span>${fmt(s[k])}</span></div><div class="bar"><i style="width:${s[k]/max*100}%;background:${c}"></i></div>`).join('');
+ $('#tot').textContent='⏱ '+(tot/3600).toFixed(1)+' hours wasted'}
+function sync(){if(!user)return;const r=calc('day');db.doc('users/'+user.uid).set({name:user.displayName||(user.email||'potato').split('@')[0],photo:user.photoURL||'',rot:r.rot,secs:r.tot,at:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(console.log)}
+
+// ---- extension bridge
+const poll=()=>postMessage({potato:'get'},'*');
+addEventListener('message',e=>{const d=e.data;if(e.source!==window||!d||!d.potatoRes)return;ext=true;days=d.usage;locks=d.locks;
+ localStorage.days=JSON.stringify(days);localStorage.locks=JSON.stringify(locks);$('#noext').hidden=true;render();sync()});
+setInterval(poll,30000);setTimeout(()=>{if(!ext)$('#noext').hidden=false},1500);
+
+// ---- auth
+const showErr=e=>$('#err').textContent=e.message;
+$('#login').onclick=()=>auth.signInWithEmailAndPassword($('#em').value,$('#pw').value).catch(showErr);
+$('#signup').onclick=async()=>{try{const c=await auth.createUserWithEmailAndPassword($('#em').value,$('#pw').value);await c.user.updateProfile({displayName:$('#nm').value||'Potato'});user=auth.currentUser;profile();sync()}catch(e){showErr(e)}};
+$('#google').onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(showErr);
+let unsub;auth.onAuthStateChanged(u=>{user=u;$('#auth').hidden=!!u;$('#app').hidden=!u;if(unsub)unsub();if(!u)return;profile();poll();sync();render();
+ unsub=db.doc('users/'+u.uid).onSnapshot(s=>{me=s.data()||{};profile()})});
+function profile(){if(!user)return;$('#pn').textContent=user.displayName||user.email;$('#pp').src=user.photoURL||'icon.svg';
+ $('#bd').textContent=me.premium?'⭐ Upgraded':'Not upgraded';$('#up').hidden=!!me.premium}
+function go(n){$('#p0').hidden=n!=0;$('#p1').hidden=n!=1;$('#n0').classList.toggle('on',n==0);$('#n1').classList.toggle('on',n==1);if(n==1)board()}
+all('[data-r]').forEach(b=>b.onclick=()=>{range=b.dataset.r;all('[data-r]').forEach(x=>x.classList.toggle('on',x==b));render()});
+all('[data-d]').forEach(b=>b.onclick=()=>{dir=b.dataset.d;all('[data-d]').forEach(x=>x.classList.toggle('on',x==b));board()});
+async function board(){$('#list').innerHTML='<p style="text-align:center;opacity:.6">Loading…</p>';
+ try{const s=await db.collection('users').orderBy('rot',dir).limit(20).get();
+ $('#list').innerHTML=s.docs.map((d,i)=>{const u=d.data(),r=u.rot||0,face=r<25?'😊':r<55?'😐':r<80?'🤢':'💀',ph=/^https:/.test(u.photo||'')?esc(u.photo):'icon.svg';
+ return`<div class="card row ${user&&d.id==user.uid?'me':''}"><b style="width:26px">${i+1}</b><img class="av" src="${ph}" alt=""><span style="flex:1">${esc(u.name||'Potato')}${u.premium?' ⭐':''}</span><b>${face} ${r}%</b></div>`}).join('')||'<p>No potatoes yet.</p>'}
+ catch(e){$('#list').textContent=e.message}}
+
+// ---- locks
+function tm(){const t=$('#lm').value=='t';$('#lh').hidden=!t;$('#ls').hidden=t}
+function openLock(){locks=locks.filter(l=>l.from||l.until>Date.now());$('#sheet').hidden=false;lockList()}
+function lockList(){$('#ll').innerHTML=locks.map((l,i)=>`<div class="row"><span style="flex:1">${NAME[l.app]}: ${l.from?esc(l.from)+' → '+esc(l.to)+' daily':'until '+new Date(l.until).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span><button onclick="delLock(${i})">✕</button></div>`).join('')}
+function saveLocks(){localStorage.locks=JSON.stringify(locks);postMessage({potato:'locks',locks},'*');lockList()}
+function delLock(i){locks.splice(i,1);saveLocks()}
+function addLock(){if(!me.premium&&locks.length>=1){$('#sheet').hidden=true;return pay()}
+ const app=$('#la').value;locks.push($('#lm').value=='t'?{app,until:Date.now()+(+$('#lh').value||1)*36e5}:{app,from:$('#lf').value,to:$('#lt').value});saveLocks()}
+function pay(){$('#paysheet').hidden=false}
+async function sendPay(){const r=$('#ref').value.trim();if(!r)return;
+ try{await db.collection('payments').add({uid:user.uid,email:user.email||'',ref:r,status:'pending',at:firebase.firestore.FieldValue.serverTimestamp()});$('#paymsg').textContent='Sent. You will be upgraded after it is verified.'}catch(e){$('#paymsg').textContent=e.message}}
+let ip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#inst').hidden=false});$('#inst').onclick=()=>ip&&ip.prompt();
+
+// ---- the potato (canvas, pseudo-3D: lit gradient, tilt follows pointer)
+const cv=$('#cv'),c=cv.getContext('2d');let cur=0,tgt=0,tl=0;
+cv.onpointermove=e=>{const b=cv.getBoundingClientRect();tl=((e.clientX-b.left)/b.width-.5)*2};
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t),ST=[[0,[222,170,92]],[.35,[198,186,84]],[.65,[118,150,62]],[1,[70,56,36]]];
+function col(r){for(let i=1;i<4;i++)if(r<=ST[i][0]){const[a,A]=ST[i-1],[b,B]=ST[i];return mix(A,B,(r-a)/(b-a))}return ST[3][1]}
+const SP=[[-40,30,4],[30,55,5],[50,-10,3],[-55,-30,3],[10,-50,4],[0,72,3],[-58,50,3],[48,38,4]];
+function frame(t){cur+=(tgt-cur)*.05;const r=cur/100,f=1-r,[R,G,B]=col(r).map(Math.round),body=`rgb(${R},${G},${B})`;
+ c.clearRect(0,0,300,300);c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(150,275,80,10,0,0,7);c.fill();
+ c.save();c.translate(150,165+Math.sin(t/450)*(7*f+1));c.rotate(tl*.12+Math.sin(t/900)*.03*(1+r));c.scale(1+Math.sin(t/450)*.015,1);
+ c.shadowColor=`rgba(255,220,120,${.7*f})`;c.shadowBlur=45*f;
+ const g=c.createRadialGradient(-35+tl*12,-45,8,0,0,125);g.addColorStop(0,`rgb(${R+40},${G+40},${B+30})`);g.addColorStop(.55,body);g.addColorStop(1,`rgb(${R*.5|0},${G*.5|0},${B*.5|0})`);
+ c.fillStyle=g;c.beginPath();c.moveTo(-70,-20);c.bezierCurveTo(-80,-85,20,-100,68,-60);c.bezierCurveTo(105,-25,100,60,50,88);c.bezierCurveTo(0,115,-85,90,-88,20);c.bezierCurveTo(-90,0,-75,-5,-70,-20);c.fill();c.shadowBlur=0;
+ SP.slice(0,Math.ceil(r*8)).forEach(([x,y,s])=>{c.fillStyle=`rgba(35,25,10,${.3+r*.5})`;c.beginPath();c.arc(x,y,s*(1+r*1.6),0,7);c.fill()});
+ c.fillStyle=`rgba(255,255,255,${.05+.2*f})`;c.beginPath();c.ellipse(-35,-52,22,11,-.6,0,7);c.fill();
+ if(r<.45){c.fillStyle=`rgba(255,120,120,${.5-r})`;[-48,48].forEach(x=>{c.beginPath();c.arc(x,26,10,0,7);c.fill()})}
+ if(r>.4){c.strokeStyle='#8fcf4a';c.lineWidth=4;c.lineCap='round';[-20,15].forEach((x,i)=>{c.beginPath();c.moveTo(x,-82);c.quadraticCurveTo(x+8,-100-r*20,x+(i?18:-14),-108-r*30);c.stroke()})}
+ [-26,26].forEach(x=>{c.shadowColor=`rgba(255,240,150,${f})`;c.shadowBlur=24*f+2;c.fillStyle='#fffbe8';c.beginPath();c.ellipse(x,0,13,15-4*r,0,0,7);c.fill();c.shadowBlur=0;
+  c.fillStyle='#231a0c';c.beginPath();c.arc(x+tl*3,3+r*5,6,0,7);c.fill();c.fillStyle='#fff';c.beginPath();c.arc(x+tl*3+2,1+r*5,2,0,7);c.fill();
+  c.fillStyle=body;c.fillRect(x-15,-17,30,r*20)});
+ c.strokeStyle='#3b2410';c.lineWidth=4;c.lineCap='round';c.beginPath();c.moveTo(-20,42);c.quadraticCurveTo(0,42+32*(1-2*r),20,42);c.stroke();
+ if(r>.6){c.fillStyle='#6cf';c.beginPath();c.arc(-30,15+(t/9)%40,3,0,7);c.fill()}
+ if(r>.75){c.strokeStyle='#e88fa0';c.lineWidth=6;c.beginPath();for(let i=0;i<=20;i++){const y=-60-i*2.2,x=58+Math.sin(i/2+t/200)*6;i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}
+ c.restore();
+ if(r>.6)for(let i=0;i<3;i++){const a=t/300+i*2.1;c.fillStyle='#111';c.fillRect(150+Math.cos(a)*(105+i*10),140+Math.sin(a*1.3)*85,4,4)}
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);render();tm();
+</script></body></html>

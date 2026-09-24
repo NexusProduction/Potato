@@ -1,0 +1,6 @@
+{"manifest_version":3,"name":"Potato: brain rot guard","version":"1.0","description":"Tracks time on YouTube, Shorts, X and Facebook for the Potato app, warns you, and locks them.",
+"permissions":["tabs","storage","alarms","idle"],
+"background":{"service_worker":"background.js"},
+"content_scripts":[
+{"matches":["*://*.youtube.com/*","*://x.com/*","*://twitter.com/*","*://*.facebook.com/*"],"js":["content.js"],"run_at":"document_idle"},
+{"matches":["https://nexusproduction.github.io/*"],"js":["bridge.js"],"run_at":"document_start"}]}
