@@ -4,4 +4,5 @@ addEventListener('message',async e=>{
   window.postMessage({potatoRes:1,usage:u.usage||{},locks:l.locks||[]},'*')}
  if(d.potato==='locks')chrome.storage.sync.set({locks:d.locks});
  if(d.potato==='break')chrome.storage.sync.set({breakEnabled:!!d.enabled});
+ if(d.potato==='restore')chrome.storage.local.set({usage:d.days});
 });
