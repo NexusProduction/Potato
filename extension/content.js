@@ -11,9 +11,9 @@ async function tick(){
  const now=Date.now();
  if(c!==lastCat){lastCat=c;breakStarted=now}
  const {breakEnabled=false}=await chrome.storage.sync.get('breakEnabled');breakOn=!!breakEnabled;
- if(breakOn&&now-breakStarted>=3600000&&now>=breakUntil){breakUntil=now+30000;breakStarted=now+30000;document.querySelectorAll('video').forEach(v=>v.pause());showBreak()}
+ if(breakOn&&now-breakStarted>=3600000&&now>=breakUntil){breakUntil=now+30000;document.querySelectorAll('video').forEach(v=>v.pause());showBreak()}
  if(breakLayer&&now<breakUntil){document.querySelectorAll('video').forEach(v=>v.pause());updateBreak();return}
- if(breakLayer&&now>=breakUntil){breakLayer.remove();breakLayer=null}
+ if(breakLayer&&now>=breakUntil){breakLayer.remove();breakLayer=null;breakStarted=now}
  if(!chrome.runtime?.id)return;
  const [{usage={}},{locks=[]}]=await Promise.all([chrome.storage.local.get('usage'),chrome.storage.sync.get('locks')]);
  const hit=locks.find(l=>active(l,c));
@@ -32,3 +32,4 @@ setInterval(tick,2000);tick();
 
 function showBreak(){if(breakLayer)return;breakLayer=document.createElement('div');breakLayer.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(circle at 50% 35%,#193d7a,#060d20 70%);color:#f4f1e6;display:flex;flex-direction:column;align-items:center;justify-content:center;font:18px system-ui;text-align:center;padding:24px';document.documentElement.append(breakLayer);updateBreak()}
 function updateBreak(){if(!breakLayer)return;const left=Math.max(0,Math.ceil((breakUntil-Date.now())/1000));breakLayer.innerHTML='<div style="font-size:72px">🥔</div><h1 style="font-size:28px;margin:8px 0">30-second potato break</h1><p style="opacity:.7;margin:0 0 14px">Pause. Breathe. Then continue.</p><div style="font:800 54px system-ui">'+left+'</div><p style="opacity:.55;font-size:12px">Your video is paused during the break.</p>'}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)breakStarted=Date.now()});
