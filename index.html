@@ -89,6 +89,7 @@ const auth=firebase.auth(),db=firebase.firestore(),$=s=>document.querySelector(s
 const NAME={yt:'YouTube',ys:'YouTube Shorts',x:'X',fb:'Facebook',ig:'Instagram',tt:'TikTok'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const fmt=s=>{const m=Math.round(s/60);return m>=60?Math.floor(m/60)+'h '+m%60+'m':m+'m'};
+function mergeDays(a,b){const out={};const keys=new Set([...Object.keys(a||{}),...Object.keys(b||{})]);for(const k of keys){const x=(a&&a[k])||{},y=(b&&b[k])||{};const apps=new Set([...Object.keys(x),...Object.keys(y)]);out[k]={};for(const p of apps)out[k][p]=Math.max(x[p]||0,y[p]||0)}return out}
 const IC={play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor"/>',bolt:'<path d="M13 2 5 13h6l-1 9 9-12h-6z" fill="currentColor"/>',x:'<path d="M5 4l14 16M19 4L5 20" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',fb:'<path d="M14 21v-8h3l.5-3.5H14V7.5c0-1 .4-1.7 1.8-1.7h1.8V2.7c-.4-.1-1.6-.2-2.6-.2-2.6 0-4.3 1.6-4.3 4.4v2.6H8V13h2.7v8z" fill="currentColor"/>',ig:'<rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.8" r="1.2" fill="currentColor"/>',tt:'<path d="M14 4v10.2a3.8 3.8 0 11-3-3.7V7.3A7 7 0 1017 14V9.4a7 7 0 01-3-1.4z" fill="currentColor"/>',lock:'<rect x="5" y="10.5" width="14" height="10" rx="3" fill="currentColor"/><path d="M8 10.5V8a4 4 0 018 0v2.5" stroke="currentColor" stroke-width="2.2" fill="none"/>',bars:'<rect x="4" y="12" width="4" height="8" rx="2" fill="currentColor"/><rect x="10" y="4" width="4" height="16" rx="2" fill="currentColor"/><rect x="16" y="9" width="4" height="11" rx="2" fill="currentColor"/>',cup:'<path d="M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3M12 14v4M8 20h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',gem:'<path d="M6 4h12l4 6-10 11L2 10z" fill="currentColor"/>',timer:'<path d="M7 3h10M7 21h10M8 3c0 5 3 6 4 7-1 1-4 2-4 7M16 3c0 5-3 6-4 7 1 1 4 2 4 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'};
 const I=p=>`<svg class="ic" viewBox="0 0 24 24">${p}</svg>`;
 const AP=[['yt','YouTube','#ff2a3d','play'],['ys','YouTube Shorts','#ff7a2f','bolt'],['x','X','#20263a','x'],['fb','Facebook','#2f6bff','fb'],['ig','Instagram','#d62976','ig'],['tt','TikTok','#25f4ee','tt']];
@@ -154,14 +155,14 @@ function moodScore(r,kind){const h=r/3600;const day=[0,1.5,2.5,4,6,9];const band
 function moodLabel(v){return v<20?'Fresh and happy':v<40?'Getting soft':v<60?'Turning green':v<80?'Rotting':'Fully rotten'}
 function initApps(){$('#apps').innerHTML=AP.map(([k,n,cl,i])=>`<div class="app" data-app="${k}"><div class="tile" style="background:linear-gradient(145deg,${cl},${cl}aa)">${I(IC[i])}</div><div><span><b>${n}</b><b class="val"></b></span><div class="meter"><i style="background:${cl}"></i></div><small class="note" style="color:var(--mute)"></small></div></div>`).join('')}
 function render(){const{s,tot,rot}=calc(range),ss=series(),pick=sel<0||sel>=ss.v.length?ss.cur:sel,selected=calcPrefix(ss.p[pick]),max=Math.max(1,...Object.values(selected.s));rotTarget=rot;displayRot=displayRot||rot;moodTgt=moodScore(rot,range);$('.seg').style.setProperty('--i',['day','month','year'].indexOf(range));AP.forEach(([k])=>{const el=$(`.app[data-app="${k}"]`);if(!el)return;const val=selected.s[k]||0;el.querySelector('.val').textContent=dur(val);el.querySelector('.meter i').style.width=Math.max(0,val/max*100)+'%';el.querySelector('.meter').classList.toggle('dot',val<=60);const note=el.querySelector('.note');if(k=='ys'){note.textContent='counts double toward rotten time';note.style.display=''}else note.style.display='none'});chart()}
-function sync(){if(!user)return;const r=calc('day');db.doc('users/'+user.uid).set({name:user.displayName||(user.email||'potato').split('@')[0],photo:user.photoURL||'',rot:r.rot,secs:r.tot,at:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(console.log)}
+function sync(){if(!user)return;const r=calc('day');db.doc('users/'+user.uid).set({name:user.displayName||(user.email||'potato').split('@')[0],photo:user.photoURL||'',rot:r.rot,secs:r.tot,days,at:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(console.log)}
 
 // ---- extension bridge
 const poll=()=>postMessage({potato:'get'},'*');
 function setBreak(v){breakOn=!!v;localStorage.breakOn=breakOn?'1':'0';$('#breakToggle').classList.toggle('on',breakOn);$('#breakToggle').setAttribute('aria-pressed',String(breakOn));postMessage({potato:'break',enabled:breakOn},'*')}
 $('#breakToggle').onclick=()=>setBreak(!breakOn);setBreak(breakOn);
-addEventListener('message',e=>{const d=e.data;if(e.source!==window||!d||!d.potatoRes)return;ext=true;days=d.usage;locks=d.locks;
- localStorage.days=JSON.stringify(days);localStorage.locks=JSON.stringify(locks);$('#noext').hidden=true;render();sync()});
+addEventListener('message',e=>{const d=e.data;if(e.source!==window||!d||!d.potatoRes)return;ext=true;days=mergeDays(days,d.usage);locks=d.locks;
+ localStorage.days=JSON.stringify(days);localStorage.locks=JSON.stringify(locks);$('#noext').hidden=true;postMessage({potato:'restore',days},'*');render();sync()});
 setInterval(poll,30000);
 
 // ---- auth + pages
@@ -170,7 +171,9 @@ $('#login').onclick=()=>auth.signInWithEmailAndPassword($('#em').value,$('#pw').
 $('#signup').onclick=async()=>{try{const c=await auth.createUserWithEmailAndPassword($('#em').value,$('#pw').value);await c.user.updateProfile({displayName:$('#nm').value||'Potato'});user=auth.currentUser;profile();sync()}catch(e){showErr(e)}};
 $('#google').onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(showErr);
 let unsub;auth.onAuthStateChanged(u=>{user=u;$('#auth').hidden=!!u;$('#app').hidden=!u;if(unsub)unsub();if(!u)return;profile();poll();sync();render();
- unsub=db.doc('users/'+u.uid).onSnapshot(s=>{me=s.data()||{};profile()})});
+ unsub=db.doc('users/'+u.uid).onSnapshot(s=>{me=s.data()||{};profile();
+  if(me.days){const merged=mergeDays(days,me.days);if(JSON.stringify(merged)!==JSON.stringify(days)){days=merged;localStorage.days=JSON.stringify(days);postMessage({potato:'restore',days},'*');render()}}
+ })});
 function profile(){if(!user)return}
 all('[data-r]').forEach(b=>b.onclick=()=>{if(range==b.dataset.r)return;range=b.dataset.r;sel=-1;all('[data-r]').forEach(x=>x.classList.toggle('on',x==b));render()});
 // ---- locks + payment
