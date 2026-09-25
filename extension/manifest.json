@@ -1,4 +1,4 @@
-{"manifest_version":3,"name":"Potato: brain rot guard","version":"1.0","description":"Tracks time on YouTube, Shorts, X and Facebook for the Potato app, warns you, and locks them.",
+{"manifest_version":3,"name":"Potato: brain rot guard","version":"1.1","description":"Tracks time on YouTube, Shorts, X, Facebook, Instagram and TikTok for the Potato app, warns you, locks them, and can add continuous-use breaks.",
 "permissions":["tabs","storage","alarms","idle"],
 "background":{"service_worker":"background.js"},
 "content_scripts":[
