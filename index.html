@@ -5,6 +5,7 @@
 <style>
 :root{--gold:#ffc83d;--txt:#f4f1e6;--mute:#9db0d6;--line:#ffffff1c;--glow:255,200,80;--disp:'Bricolage Grotesque',system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html{overscroll-behavior-y:none}body{overscroll-behavior-y:none}
 body{position:relative;background:radial-gradient(130% 60% at 50% -10%,#2a52c4 0%,#132a66 38%,#0a1938 70%,#060d20 100%) fixed #060d20;color:var(--txt);font:15px/1.5 Figtree,system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 0 110px;letter-spacing:.1px}body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;mix-blend-mode:overlay;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/></svg>')}
 h1,h3,b,.num{font-family:var(--disp)}.num{font-weight:800}
 [hidden]{display:none!important}
