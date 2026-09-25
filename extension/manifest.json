@@ -2,5 +2,5 @@
 "permissions":["tabs","storage","alarms","idle"],
 "background":{"service_worker":"background.js"},
 "content_scripts":[
-{"matches":["*://*.youtube.com/*","*://x.com/*","*://twitter.com/*","*://*.facebook.com/*"],"js":["content.js"],"run_at":"document_idle"},
+{"matches":["*://*.youtube.com/*","*://x.com/*","*://twitter.com/*","*://*.facebook.com/*","*://*.instagram.com/*","*://*.tiktok.com/*"],"js":["content.js"],"run_at":"document_idle"},
 {"matches":["https://nexusproduction.github.io/*"],"js":["bridge.js"],"run_at":"document_start"}]}
