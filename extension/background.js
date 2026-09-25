@@ -1,7 +1,7 @@
 const cat=u=>{try{const x=new URL(u),h=x.hostname;
 if(/(^|\.)youtube\.com$/.test(h))return x.pathname.startsWith('/shorts')?'ys':'yt';
 if(/(^|\.)(x|twitter)\.com$/.test(h))return'x';
-if(/(^|\.)facebook\.com$/.test(h))return'fb'}catch(e){}};
+if(/(^|\.)facebook\.com$/.test(h))return'fb';if(/(^|\.)instagram\.com$/.test(h))return'ig';if(/(^|\.)tiktok\.com$/.test(h))return'tt'}catch(e){}};
 chrome.alarms.create('t',{periodInMinutes:1});
 chrome.alarms.onAlarm.addListener(async()=>{
  if(await chrome.idle.queryState(60)!=='active')return;
