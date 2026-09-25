@@ -3,4 +3,5 @@ addEventListener('message',async e=>{
  if(d.potato==='get'){const u=await chrome.storage.local.get('usage'),l=await chrome.storage.sync.get('locks');
   window.postMessage({potatoRes:1,usage:u.usage||{},locks:l.locks||[]},'*')}
  if(d.potato==='locks')chrome.storage.sync.set({locks:d.locks});
+ if(d.potato==='break')chrome.storage.sync.set({breakEnabled:!!d.enabled});
 });
